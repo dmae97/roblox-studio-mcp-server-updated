@@ -26,3 +26,20 @@ coverage/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Test files
+test.txt
+test2.txt
+test3.txt
+
+# Error logs
+tsc_err.log
+
+# Duplicate files
+/swagger.ts
+
+# Package lock (optional - depending on your preference)
+# package-lock.json
+
+# Claude Desktop files
+.claude/
