@@ -111,7 +111,12 @@ export const commandMappings = {
 /**
  * Template responses for common requests
  */
-export const templateResponses = {
+interface TemplateResponse {
+  ko: string;
+  en: string;
+}
+
+export const templateResponses: Record<string, TemplateResponse> = {
   'game-creation': {
     ko: `게임을 만들기 위해 다음 정보가 필요합니다:
 1. 게임 장르 (플랫포머, RPG, 레이싱 등)
@@ -151,7 +156,8 @@ export async function handleClaudePrompt(
   
   switch (promptName) {
     case 'roblox-game-wizard':
-      return templateResponses['game-creation'][language] || templateResponses['game-creation']['en'];
+      const response = templateResponses['game-creation'];
+      return response[language as keyof TemplateResponse] || response.en;
       
     case 'roblox-script-assistant':
       const description = args.description as string;
@@ -175,7 +181,7 @@ export async function handleClaudePrompt(
  */
 function generateScriptFromDescription(description: string, language: string): string {
   // Analyze description and map to appropriate tools
-  const mappings = commandMappings[language] || commandMappings['en'];
+  const mappings = commandMappings[language as keyof typeof commandMappings] || commandMappings['english'];
   let matchedCommand = null;
   
   for (const [keyword, command] of Object.entries(mappings)) {

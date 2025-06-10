@@ -18,7 +18,8 @@ import { ApiVersionManager } from './controllers/api/version-manager.js';
 import { cache } from './utils/cache.js';
 import { AuthRoutes } from './controllers/auth/auth-routes.js';
 import { metricsMiddleware, getMetrics } from './middlewares/metrics.js';
-import { setupSwagger } from '../swagger.js';
+import { setupSwagger } from './swagger.js';
+import claudeRouter from './controllers/api/claude-api.js';
 
 // Load environment variables
 dotenv.config();
@@ -60,6 +61,10 @@ const apiVersionManager = new ApiVersionManager();
 // Register API version v1
 const v1Router = express.Router();
 v1Router.use('/auth', new AuthRoutes().getRouter());
+
+// Register Claude API endpoints
+v1Router.use('/claude', claudeRouter);
+
 apiVersionManager.registerVersion({ version: 'v1', router: v1Router });
 
 // Set default API version

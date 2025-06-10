@@ -159,6 +159,7 @@ export interface ProcessedCommand {
   parameters: Record<string, any>;
   suggestedTools: string[];
   confidence: number;
+  toolResults?: any[];
 }
 
 export interface Intent {
@@ -364,8 +365,19 @@ export async function executeClaudeTool(
 }
 
 // Helper functions for tool execution
+interface ExplanationLevel {
+  simple: string;
+  detailed: string;
+  expert: string;
+}
+
+interface Explanations {
+  ko: ExplanationLevel;
+  en: ExplanationLevel;
+}
+
 function explainCode(code: string, language: 'ko' | 'en', detailLevel: string): string {
-  const explanations = {
+  const explanations: Explanations = {
     ko: {
       simple: '이 코드는 다음과 같은 작업을 수행합니다:\n',
       detailed: '코드에 대한 상세 설명:\n',
@@ -378,7 +390,8 @@ function explainCode(code: string, language: 'ko' | 'en', detailLevel: string): 
     },
   };
 
-  return explanations[language][detailLevel] + analyzeCodeStructure(code, language);
+  const level = detailLevel as keyof ExplanationLevel;
+  return explanations[language][level] + analyzeCodeStructure(code, language);
 }
 
 function analyzeCodeStructure(code: string, language: 'ko' | 'en'): string {
@@ -404,9 +417,22 @@ function analyzeProject(projectStructure: any, analysisType: string, language: '
   };
 }
 
+interface WizardSteps {
+  start: string;
+  genre: string;
+  features: string;
+  style: string;
+  generate: string;
+}
+
+interface WizardStepsLang {
+  ko: WizardSteps;
+  en: WizardSteps;
+}
+
 function runTemplateWizard(step: string, previousChoices: any, language: 'ko' | 'en'): any {
   // Template wizard logic
-  const wizardSteps = {
+  const wizardSteps: WizardStepsLang = {
     ko: {
       start: '로블록스 게임 템플릿 마법사를 시작합니다. 어떤 장르의 게임을 만들고 싶으신가요?',
       genre: '장르를 선택하셨습니다. 이제 주요 기능을 선택해주세요.',
@@ -423,9 +449,10 @@ function runTemplateWizard(step: string, previousChoices: any, language: 'ko' | 
     },
   };
 
+  const stepKey = step as keyof WizardSteps;
   return {
     currentStep: step,
-    message: wizardSteps[language][step],
+    message: wizardSteps[language][stepKey],
     previousChoices,
     nextStep: getNextStep(step),
   };
@@ -437,6 +464,17 @@ function getNextStep(currentStep: string): string {
   return currentIndex < steps.length - 1 ? steps[currentIndex + 1] : 'complete';
 }
 
+interface LearningPath {
+  title: string;
+  duration: string;
+  modules: any[];
+}
+
+interface LearningPaths {
+  ko: LearningPath;
+  en: LearningPath;
+}
+
 function generateLearningPath(
   currentSkills: string[],
   goals: string[],
@@ -444,7 +482,7 @@ function generateLearningPath(
   language: 'ko' | 'en'
 ): any {
   // Learning path generation logic
-  const paths = {
+  const paths: LearningPaths = {
     ko: {
       title: '맞춤형 로블록스 학습 경로',
       duration: timeCommitment === 'intensive' ? '4주' : timeCommitment === 'regular' ? '8주' : '12주',

@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { logger } from '../utils/logger.js';
+import { claudeTools, executeClaudeTool } from './claude-tools.js';
 
 // Placeholder implementations for future tools
 const createPlaceholderTool = (name: string) => ({
@@ -28,6 +29,20 @@ const openCloudConnector = createPlaceholderTool('OpenCloudConnector');
 export const robloxTools = {
   register: (server: McpServer) => {
     logger.info('Registering Roblox Studio tools...');
+    
+    // Register Claude-enhanced tools first
+    claudeTools.forEach(tool => {
+      server.addTool({
+        name: tool.name,
+        description: tool.description,
+        inputSchema: tool.inputSchema,
+        handler: async (args) => {
+          logger.debug(`Executing Claude tool: ${tool.name}`, args);
+          return await executeClaudeTool(tool.name, args);
+        },
+      });
+    });
+    logger.info(`Registered ${claudeTools.length} Claude-enhanced tools`);
     
     // Register core tools
     codeGenerator.register(server);

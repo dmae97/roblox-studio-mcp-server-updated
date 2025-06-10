@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { claudeTools, executeClaudeTool, NaturalCommandProcessor } from '../tools/claude-tools.js';
-import { claudePrompts, handleClaudePrompt } from '../prompts/claude-prompts.js';
-import { logger } from '../utils/logger.js';
+import { claudeTools, executeClaudeTool, NaturalCommandProcessor } from '../../tools/claude-tools.js';
+import { claudePrompts, handleClaudePrompt } from '../../prompts/claude-prompts.js';
+import { logger } from '../../utils/logger.js';
 
 const router = Router();
 const commandProcessor = new NaturalCommandProcessor();
