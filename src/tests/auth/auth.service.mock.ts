@@ -1,4 +1,4 @@
-import { AuthService } from '../../auth/auth.service.js';
+import { AuthService } from '../../services/auth/auth-service.js';
 
 // Mock implementation to avoid dependencies on bcrypt and jwt
 export class MockAuthService extends AuthService {
@@ -11,7 +11,7 @@ export class MockAuthService extends AuthService {
       return {
         accessToken: 'mock-access-token',
         refreshToken: 'mock-refresh-token',
-        expiresIn: 3600
+        expiresIn: 3600,
       };
     }
     throw new Error('Invalid credentials');
@@ -22,7 +22,7 @@ export class MockAuthService extends AuthService {
       return {
         accessToken: 'new-mock-access-token',
         refreshToken: 'new-mock-refresh-token',
-        expiresIn: 3600
+        expiresIn: 3600,
       };
     }
     throw new Error('Invalid refresh token');
@@ -33,7 +33,7 @@ export class MockAuthService extends AuthService {
       return {
         userId: 1,
         username: 'testuser',
-        role: 'user'
+        role: 'user',
       };
     }
     throw new Error('Invalid token');

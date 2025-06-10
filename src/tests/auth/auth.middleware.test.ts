@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthMiddleware } from '../../auth/auth.middleware.js';
-import { AuthService } from '../../auth/auth.service.js';
+import { AuthMiddleware } from '../../controllers/auth/auth-middleware.js';
+import { AuthService } from '../../services/auth/auth-service.js';
 
 // Mock dependencies
-jest.mock('../../auth/auth.service.js');
+jest.mock('../../services/auth/auth-service.js');
 
 describe('AuthMiddleware', () => {
   let authMiddleware: AuthMiddleware;
@@ -18,12 +18,12 @@ describe('AuthMiddleware', () => {
     // Create mock request, response, and next function objects
     mockReq = {
       headers: {},
-      user: undefined
+      user: undefined,
     };
     
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
     
     mockNext = jest.fn();
@@ -40,7 +40,7 @@ describe('AuthMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'No token provided'
+        message: 'No token provided',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -48,7 +48,7 @@ describe('AuthMiddleware', () => {
     it('should return 401 if authorization header format is invalid', () => {
       // Test with invalid authorization header format
       mockReq.headers = {
-        authorization: 'InvalidFormat token123'
+        authorization: 'InvalidFormat token123',
       };
 
       authMiddleware.verifyToken(mockReq as Request, mockRes as Response, mockNext);
@@ -56,7 +56,7 @@ describe('AuthMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Token format invalid'
+        message: 'Token format invalid',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -64,7 +64,7 @@ describe('AuthMiddleware', () => {
     it('should return 401 if token verification fails', () => {
       // Test with valid format but invalid token
       mockReq.headers = {
-        authorization: 'Bearer invalid_token'
+        authorization: 'Bearer invalid_token',
       };
 
       // Mock token verification to throw an error
@@ -77,7 +77,7 @@ describe('AuthMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Invalid token'
+        message: 'Invalid token',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -85,14 +85,14 @@ describe('AuthMiddleware', () => {
     it('should call next and attach user to request if token is valid', () => {
       // Test with valid token
       mockReq.headers = {
-        authorization: 'Bearer valid_token'
+        authorization: 'Bearer valid_token',
       };
 
       // Mock successful token verification
       const mockUser = {
         userId: 1,
         username: 'testuser',
-        role: 'user'
+        role: 'user',
       };
       
       jest.spyOn(AuthService.prototype, 'verifyToken').mockReturnValue(mockUser);
@@ -114,7 +114,7 @@ describe('AuthMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Authentication required'
+        message: 'Authentication required',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -124,7 +124,7 @@ describe('AuthMiddleware', () => {
       mockReq.user = {
         userId: 2,
         username: 'testuser',
-        role: 'user'
+        role: 'user',
       };
 
       authMiddleware.checkAdminRole(mockReq as Request, mockRes as Response, mockNext);
@@ -132,7 +132,7 @@ describe('AuthMiddleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(403);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Admin privileges required'
+        message: 'Admin privileges required',
       });
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -142,7 +142,7 @@ describe('AuthMiddleware', () => {
       mockReq.user = {
         userId: 1,
         username: 'admin',
-        role: 'admin'
+        role: 'admin',
       };
 
       authMiddleware.checkAdminRole(mockReq as Request, mockRes as Response, mockNext);

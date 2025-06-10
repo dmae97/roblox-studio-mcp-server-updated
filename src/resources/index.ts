@@ -1,7 +1,18 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { documentation } from './documentation.js';
-import { templates } from './templates.js';
 import { logger } from '../utils/logger.js';
+
+// Placeholder for future resource implementations
+const documentation = {
+  register: (_server: McpServer) => {
+    logger.debug('Documentation resource placeholder');
+  },
+};
+
+const templates = {
+  register: (_server: McpServer) => {
+    logger.debug('Templates resource placeholder');
+  },
+};
 
 /**
  * Registry for all Roblox Studio resources
@@ -15,5 +26,5 @@ export const robloxResources = {
     templates.register(server);
     
     logger.info('Roblox Studio resources registered successfully');
-  }
+  },
 };

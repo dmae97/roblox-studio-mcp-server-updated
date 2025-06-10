@@ -41,7 +41,7 @@ export class ConnectionManager extends EventEmitter {
       reconnected: 0,
       failed: 0,
       avgResponseTime: 0,
-      totalRequests: 0
+      totalRequests: 0,
     };
 
     // Start health check interval
@@ -173,7 +173,7 @@ export class ConnectionManager extends EventEmitter {
   getStats(): ConnectionStats & { current: number } {
     return {
       ...this.stats,
-      current: this.connections.size
+      current: this.connections.size,
     };
   }
 

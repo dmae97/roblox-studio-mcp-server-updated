@@ -1,1 +1,98 @@
-import WebSocket from 'ws';\nimport { WebSocketServerTransport } from '../../connection/websocket-transport.js';\nimport { McpMessage } from '@modelcontextprotocol/sdk/server/mcp.js';\nimport { EventEmitter } from 'events';\n\n// Mock WebSocket class\nclass MockWebSocket extends EventEmitter {\n  readyState = WebSocket.OPEN;\n  \n  send(data: string, callback?: (err?: Error) => void) {\n    if (callback) callback();\n    return true;\n  }\n  \n  close() {\n    this.readyState = WebSocket.CLOSED;\n    this.emit('close');\n  }\n  \n  terminate() {\n    this.readyState = WebSocket.CLOSED;\n    this.emit('close');\n  }\n  \n  ping() {\n    this.emit('pong');\n    return true;\n  }\n}\n\ndescribe('WebSocketServerTransport', () => {\n  let mockSocket: MockWebSocket;\n  let transport: WebSocketServerTransport;\n  \n  beforeEach(() => {\n    mockSocket = new MockWebSocket();\n    transport = new WebSocketServerTransport(mockSocket as unknown as WebSocket);\n  });\n  \n  test('should generate a sessionId', () => {\n    expect(transport.sessionId).toBeDefined();\n    expect(typeof transport.sessionId).toBe('string');\n  });\n  \n  test('should handle message sending', async () => {\n    const sendSpy = jest.spyOn(mockSocket, 'send');\n    const message: McpMessage = {\n      id: '1',\n      role: 'user',\n      content: 'test message',\n      created_at: new Date().toISOString(),\n    };\n    \n    await transport.sendMessage(message);\n    \n    expect(sendSpy).toHaveBeenCalledWith(JSON.stringify(message), expect.any(Function));\n  });\n  \n  test('should register and call message handlers', () => {\n    const handler = jest.fn();\n    const message: McpMessage = {\n      id: '1',\n      role: 'user',\n      content: 'test message',\n      created_at: new Date().toISOString(),\n    };\n    \n    transport.onMessage(handler);\n    mockSocket.emit('message', JSON.stringify(message));\n    \n    expect(handler).toHaveBeenCalledWith(message);\n  });\n  \n  test('should register and call close handlers', () => {\n    const handler = jest.fn();\n    \n    transport.onClose(handler);\n    mockSocket.emit('close');\n    \n    expect(handler).toHaveBeenCalled();\n  });\n  \n  test('should check if connection is healthy', () => {\n    expect(transport.isHealthy()).toBe(true);\n    \n    // Simulate closed connection\n    mockSocket.readyState = WebSocket.CLOSED;\n    expect(transport.isHealthy()).toBe(false);\n  });\n  \n  test('should close the connection', () => {\n    const closeSpy = jest.spyOn(mockSocket, 'close');\n    \n    transport.close();\n    \n    expect(closeSpy).toHaveBeenCalled();\n  });\n});\n
+import WebSocket from 'ws';
+import { WebSocketServerTransport } from '../../connection/websocket-transport.js';
+import { McpMessage } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { EventEmitter } from 'events';
+
+// Mock WebSocket class
+class MockWebSocket extends EventEmitter {
+  readyState = WebSocket.OPEN;
+  
+  send(data: string, callback?: (err?: Error) => void) {
+    if (callback) callback();
+    return true;
+  }
+  
+  close() {
+    this.readyState = WebSocket.CLOSED;
+    this.emit('close');
+  }
+  
+  terminate() {
+    this.readyState = WebSocket.CLOSED;
+    this.emit('close');
+  }
+  
+  ping() {
+    this.emit('pong');
+    return true;
+  }
+}
+
+describe('WebSocketServerTransport', () => {
+  let mockSocket: MockWebSocket;
+  let transport: WebSocketServerTransport;
+  
+  beforeEach(() => {
+    mockSocket = new MockWebSocket();
+    transport = new WebSocketServerTransport(mockSocket as unknown as WebSocket);
+  });
+  
+  test('should generate a sessionId', () => {
+    expect(transport.sessionId).toBeDefined();
+    expect(typeof transport.sessionId).toBe('string');
+  });
+  
+  test('should handle message sending', async () => {
+    const sendSpy = jest.spyOn(mockSocket, 'send');
+    const message: McpMessage = {
+      id: '1',
+      role: 'user',
+      content: 'test message',
+      created_at: new Date().toISOString(),
+    };
+    
+    await transport.sendMessage(message);
+    
+    expect(sendSpy).toHaveBeenCalledWith(JSON.stringify(message), expect.any(Function));
+  });
+  
+  test('should register and call message handlers', () => {
+    const handler = jest.fn();
+    const message: McpMessage = {
+      id: '1',
+      role: 'user',
+      content: 'test message',
+      created_at: new Date().toISOString(),
+    };
+    
+    transport.onMessage(handler);
+    mockSocket.emit('message', JSON.stringify(message));
+    
+    expect(handler).toHaveBeenCalledWith(message);
+  });
+  
+  test('should register and call close handlers', () => {
+    const handler = jest.fn();
+    
+    transport.onClose(handler);
+    mockSocket.emit('close');
+    
+    expect(handler).toHaveBeenCalled();
+  });
+  
+  test('should check if connection is healthy', () => {
+    expect(transport.isHealthy()).toBe(true);
+    
+    // Simulate closed connection
+    mockSocket.readyState = WebSocket.CLOSED;
+    expect(transport.isHealthy()).toBe(false);
+  });
+  
+  test('should close the connection', () => {
+    const closeSpy = jest.spyOn(mockSocket, 'close');
+    
+    transport.close();
+    
+    expect(closeSpy).toHaveBeenCalled();
+  });
+});

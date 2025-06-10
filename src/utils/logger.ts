@@ -12,7 +12,7 @@ const LOG_LEVELS = {
   debug: 0,
   info: 1,
   warn: 2,
-  error: 3
+  error: 3,
 };
 
 // ANSI color codes for terminal output
@@ -24,7 +24,7 @@ const COLORS = {
   blue: '\x1b[34m',
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
-  gray: '\x1b[90m'
+  gray: '\x1b[90m',
 };
 
 // Helper to check if a log level should be displayed
@@ -94,5 +94,5 @@ export const logger = {
         console.error(COLORS.red + error.stack + COLORS.reset);
       }
     }
-  }
+  },
 };

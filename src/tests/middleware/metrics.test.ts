@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { metricsMiddleware, getMetrics, resetMetrics } from '../../middleware/metrics.js';
+import { metricsMiddleware, getMetrics, resetMetrics } from '../../middlewares/metrics.js';
 
 describe('Metrics Middleware', () => {
   let req: Partial<Request>;

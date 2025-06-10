@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { AuthService } from '../../auth/auth.service.js';
+import { AuthService } from '../../services/auth/auth-service.js';
 
 // Mock dependencies
 jest.mock('jsonwebtoken');
@@ -37,7 +37,7 @@ describe('AuthService', () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       // Mock jwt.sign for both token types
-      (jwt.sign as jest.Mock).mockImplementation((payload, secret, options) => {
+      (jwt.sign as jest.Mock).mockImplementation((payload, secret, _options) => {
         if (secret === authService['JWT_SECRET']) {
           return 'test_access_token';
         } else {
@@ -50,7 +50,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         accessToken: 'test_access_token',
         refreshToken: 'test_refresh_token',
-        expiresIn: expect.any(Number)
+        expiresIn: expect.any(Number),
       });
     });
   });
@@ -71,7 +71,7 @@ describe('AuthService', () => {
       (jwt.verify as jest.Mock).mockReturnValue({
         userId: 999, // Non-existent user ID
         username: 'nonexistent',
-        role: 'user'
+        role: 'user',
       });
 
       await expect(authService.refreshToken('valid_token'))
@@ -83,11 +83,11 @@ describe('AuthService', () => {
       (jwt.verify as jest.Mock).mockReturnValue({
         userId: 1, // Existing user ID (admin)
         username: 'admin',
-        role: 'admin'
+        role: 'admin',
       });
 
       // Mock jwt.sign for both token types
-      (jwt.sign as jest.Mock).mockImplementation((payload, secret, options) => {
+      (jwt.sign as jest.Mock).mockImplementation((payload, secret, _options) => {
         if (secret === authService['JWT_SECRET']) {
           return 'new_access_token';
         } else {
@@ -100,7 +100,7 @@ describe('AuthService', () => {
       expect(result).toEqual({
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
-        expiresIn: expect.any(Number)
+        expiresIn: expect.any(Number),
       });
     });
   });
@@ -120,7 +120,7 @@ describe('AuthService', () => {
       const mockPayload = {
         userId: 1,
         username: 'admin',
-        role: 'admin'
+        role: 'admin',
       };
 
       // Mock jwt.verify to return a decoded token

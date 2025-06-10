@@ -1,7 +1,18 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { scriptGenerator } from './scriptGenerator.js';
-import { bugFinder } from './bugFinder.js';
 import { logger } from '../utils/logger.js';
+
+// Placeholder for future prompt implementations
+const scriptGenerator = {
+  register: (_server: McpServer) => {
+    logger.debug('ScriptGenerator prompt placeholder');
+  },
+};
+
+const bugFinder = {
+  register: (_server: McpServer) => {
+    logger.debug('BugFinder prompt placeholder');
+  },
+};
 
 /**
  * Registry for all Roblox Studio prompts
@@ -15,5 +26,5 @@ export const robloxPrompts = {
     bugFinder.register(server);
     
     logger.info('Roblox Studio prompts registered successfully');
-  }
+  },
 };

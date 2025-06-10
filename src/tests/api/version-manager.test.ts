@@ -1,1 +1,143 @@
-import { Request, Response, NextFunction, Router } from 'express';\nimport { ApiVersionManager } from '../../api/version-manager.js';\n\ndescribe('ApiVersionManager', () => {\n  let versionManager: ApiVersionManager;\n  let mockRequest: Partial<Request>;\n  let mockResponse: Partial<Response>;\n  let mockNext: jest.Mock<NextFunction>;\n  let mockV1Router: Router;\n  let mockV2Router: Router;\n\n  beforeEach(() => {\n    // Initialize ApiVersionManager\n    versionManager = new ApiVersionManager();\n    \n    // Create mock routers\n    mockV1Router = Router();\n    mockV2Router = Router();\n    \n    // Register versions\n    versionManager.registerVersion({ version: 'v1', router: mockV1Router });\n    versionManager.registerVersion({ version: 'v2', router: mockV2Router });\n    \n    // Set up mocks\n    mockRequest = {\n      path: '',\n      originalUrl: '',\n      url: '',\n    };\n    \n    mockResponse = {\n      status: jest.fn().mockReturnThis(),\n      json: jest.fn().mockReturnThis(),\n    };\n    \n    mockNext = jest.fn();\n  });\n\n  describe('registerVersion', () => {\n    test('should register a new API version', () => {\n      const mockV3Router = Router();\n      versionManager.registerVersion({ version: 'v3', router: mockV3Router });\n      \n      // Set default to v3 and verify it works\n      versionManager.setDefaultVersion('v3');\n      expect(versionManager.getDefaultVersion()).toBe('v3');\n    });\n\n    test('should throw error when registering duplicate version', () => {\n      expect(() => {\n        versionManager.registerVersion({ version: 'v1', router: Router() });\n      }).toThrow('API version v1 is already registered');\n    });\n  });\n\n  describe('setDefaultVersion', () => {\n    test('should set the default API version', () => {\n      versionManager.setDefaultVersion('v2');\n      expect(versionManager.getDefaultVersion()).toBe('v2');\n    });\n\n    test('should throw error when setting non-existent version as default', () => {\n      expect(() => {\n        versionManager.setDefaultVersion('v99');\n      }).toThrow('Cannot set non-existent API version v99 as default');\n    });\n  });\n\n  describe('createVersioningMiddleware', () => {\n    test('should route to the correct version based on URL path', () => {\n      const middleware = versionManager.createVersioningMiddleware();\n      \n      // Set up request to v2\n      mockRequest.path = '/v2/resource';\n      mockRequest.originalUrl = '/api/v2/resource';\n\n      // Mock the router handler for v2\n      const mockRouterHandler = jest.fn();\n      mockV2Router.handle = mockRouterHandler;\n\n      // Call middleware\n      middleware(mockRequest as Request, mockResponse as Response, mockNext);\n\n      // Verify router was called\n      expect(mockRouterHandler).toHaveBeenCalled();\n    });\n\n    test('should route to default version when no version specified', () => {\n      const middleware = versionManager.createVersioningMiddleware();\n      \n      // Set default version\n      versionManager.setDefaultVersion('v1');\n      \n      // Set up request with no version\n      mockRequest.path = '/resource';\n      mockRequest.originalUrl = '/api/resource';\n\n      // Mock the router handler for v1\n      const mockRouterHandler = jest.fn();\n      mockV1Router.handle = mockRouterHandler;\n\n      // Call middleware\n      middleware(mockRequest as Request, mockResponse as Response, mockNext);\n\n      // Verify router was called\n      expect(mockRouterHandler).toHaveBeenCalled();\n    });\n\n    test('should return 404 for non-existent API version', () => {\n      const middleware = versionManager.createVersioningMiddleware();\n      \n      // Set up request to non-existent version\n      mockRequest.path = '/v99/resource';\n      mockRequest.originalUrl = '/api/v99/resource';\n\n      // Call middleware\n      middleware(mockRequest as Request, mockResponse as Response, mockNext);\n\n      // Verify 404 response\n      expect(mockResponse.status).toHaveBeenCalledWith(404);\n      expect(mockResponse.json).toHaveBeenCalledWith({\n        error: 'API version not found',\n        message: 'API version v99 does not exist',\n      });\n    });\n  });\n\n  describe('getVersionedRouter', () => {\n    test('should return the router for a specific version', () => {\n      const v1Router = versionManager.getVersionedRouter('v1');\n      const v2Router = versionManager.getVersionedRouter('v2');\n      \n      expect(v1Router).toBe(mockV1Router);\n      expect(v2Router).toBe(mockV2Router);\n    });\n\n    test('should throw error for non-existent version', () => {\n      expect(() => {\n        versionManager.getVersionedRouter('v99');\n      }).toThrow('API version v99 does not exist');\n    });\n  });\n});\n
+import { Request, Response, NextFunction, Router } from 'express';
+import { ApiVersionManager } from '../../controllers/api/version-manager.js';
+
+describe('ApiVersionManager', () => {
+  let versionManager: ApiVersionManager;
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
+  let mockNext: jest.Mock<NextFunction>;
+  let mockV1Router: Router;
+  let mockV2Router: Router;
+
+  beforeEach(() => {
+    // Initialize ApiVersionManager
+    versionManager = new ApiVersionManager();
+    
+    // Create mock routers
+    mockV1Router = Router();
+    mockV2Router = Router();
+    
+    // Register versions
+    versionManager.registerVersion({ version: 'v1', router: mockV1Router });
+    versionManager.registerVersion({ version: 'v2', router: mockV2Router });
+    
+    // Set up mocks
+    mockRequest = {
+      path: '',
+      originalUrl: '',
+      url: '',
+    };
+    
+    mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    
+    mockNext = jest.fn();
+  });
+
+  describe('registerVersion', () => {
+    test('should register a new API version', () => {
+      const mockV3Router = Router();
+      versionManager.registerVersion({ version: 'v3', router: mockV3Router });
+      
+      // Set default to v3 and verify it works
+      versionManager.setDefaultVersion('v3');
+      expect(versionManager.getDefaultVersion()).toBe('v3');
+    });
+
+    test('should throw error when registering duplicate version', () => {
+      expect(() => {
+        versionManager.registerVersion({ version: 'v1', router: Router() });
+      }).toThrow('API version v1 is already registered');
+    });
+  });
+
+  describe('setDefaultVersion', () => {
+    test('should set the default API version', () => {
+      versionManager.setDefaultVersion('v2');
+      expect(versionManager.getDefaultVersion()).toBe('v2');
+    });
+
+    test('should throw error when setting non-existent version as default', () => {
+      expect(() => {
+        versionManager.setDefaultVersion('v99');
+      }).toThrow('Cannot set non-existent API version v99 as default');
+    });
+  });
+
+  describe('createVersioningMiddleware', () => {
+    test('should route to the correct version based on URL path', () => {
+      const middleware = versionManager.createVersioningMiddleware();
+      
+      // Set up request to v2
+      mockRequest.path = '/v2/resource';
+      mockRequest.originalUrl = '/api/v2/resource';
+
+      // Mock the router handler for v2
+      const mockRouterHandler = jest.fn();
+      mockV2Router.handle = mockRouterHandler;
+
+      // Call middleware
+      middleware(mockRequest as Request, mockResponse as Response, mockNext);
+
+      // Verify router was called
+      expect(mockRouterHandler).toHaveBeenCalled();
+    });
+
+    test('should route to default version when no version specified', () => {
+      const middleware = versionManager.createVersioningMiddleware();
+      
+      // Set default version
+      versionManager.setDefaultVersion('v1');
+      
+      // Set up request with no version
+      mockRequest.path = '/resource';
+      mockRequest.originalUrl = '/api/resource';
+
+      // Mock the router handler for v1
+      const mockRouterHandler = jest.fn();
+      mockV1Router.handle = mockRouterHandler;
+
+      // Call middleware
+      middleware(mockRequest as Request, mockResponse as Response, mockNext);
+
+      // Verify router was called
+      expect(mockRouterHandler).toHaveBeenCalled();
+    });
+
+    test('should return 404 for non-existent API version', () => {
+      const middleware = versionManager.createVersioningMiddleware();
+      
+      // Set up request to non-existent version
+      mockRequest.path = '/v99/resource';
+      mockRequest.originalUrl = '/api/v99/resource';
+
+      // Call middleware
+      middleware(mockRequest as Request, mockResponse as Response, mockNext);
+
+      // Verify 404 response
+      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        error: 'API version not found',
+        message: 'API version v99 does not exist',
+      });
+    });
+  });
+
+  describe('getVersionedRouter', () => {
+    test('should return the router for a specific version', () => {
+      const v1Router = versionManager.getVersionedRouter('v1');
+      const v2Router = versionManager.getVersionedRouter('v2');
+      
+      expect(v1Router).toBe(mockV1Router);
+      expect(v2Router).toBe(mockV2Router);
+    });
+
+    test('should throw error for non-existent version', () => {
+      expect(() => {
+        versionManager.getVersionedRouter('v99');
+      }).toThrow('API version v99 does not exist');
+    });
+  });
+});

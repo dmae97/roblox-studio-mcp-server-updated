@@ -15,11 +15,11 @@ const CACHE_CHECK_PERIOD = parseInt(process.env.CACHE_CHECK_PERIOD || '600', 10)
 const cacheInstance = new NodeCache({
   stdTTL: CACHE_TTL, 
   checkperiod: CACHE_CHECK_PERIOD,
-  useClones: false // For performance
+  useClones: false, // For performance
 });
 
 // Log cache events
-cacheInstance.on('expired', (key, value) => {
+cacheInstance.on('expired', (key, _value) => {
   logger.debug(`Cache item expired: ${key}`);
 });
 
@@ -56,7 +56,7 @@ export const cache = {
    * @returns True if the item was set successfully
    */
   set<T>(key: string, value: T, ttl?: number): boolean {
-    return cacheInstance.set(key, value, ttl);
+    return cacheInstance.set(key, value, ttl || 0);
   },
   
   /**
@@ -94,7 +94,7 @@ export const cache = {
     misses: number;
     ksize: number;
     vsize: number;
-  } {
+    } {
     return cacheInstance.getStats();
   },
   
@@ -136,5 +136,5 @@ export const cache = {
       logger.error(`Error computing cached value for key: ${key}`, error);
       throw error;
     }
-  }
+  },
 };

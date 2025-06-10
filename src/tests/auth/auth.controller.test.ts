@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { AuthController } from '../../auth/auth.controller.js';
-import { AuthService } from '../../auth/auth.service.js';
+import { AuthController } from '../../controllers/auth/auth-controller.js';
+import { AuthService } from '../../services/auth/auth-service.js';
 
 // Mock dependencies
-jest.mock('../../auth/auth.service.js');
+jest.mock('../../services/auth/auth-service.js');
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -16,12 +16,12 @@ describe('AuthController', () => {
     
     // Create mock request and response objects
     mockReq = {
-      body: {}
+      body: {},
     };
     
     mockRes = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis()
+      json: jest.fn().mockReturnThis(),
     };
     
     // Create a new instance of AuthController for each test
@@ -36,7 +36,7 @@ describe('AuthController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Username and password are required'
+        message: 'Username and password are required',
       });
     });
 
@@ -44,7 +44,7 @@ describe('AuthController', () => {
       // Mock request with credentials
       mockReq.body = {
         username: 'testuser',
-        password: 'password123'
+        password: 'password123',
       };
 
       // Mock login service to throw an error
@@ -55,7 +55,7 @@ describe('AuthController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Invalid credentials',
       });
     });
 
@@ -63,14 +63,14 @@ describe('AuthController', () => {
       // Mock request with credentials
       mockReq.body = {
         username: 'testuser',
-        password: 'password123'
+        password: 'password123',
       };
 
       // Mock successful login service response
       const mockTokens = {
         accessToken: 'test_access_token',
         refreshToken: 'test_refresh_token',
-        expiresIn: 3600
+        expiresIn: 3600,
       };
       
       jest.spyOn(AuthService.prototype, 'login').mockResolvedValue(mockTokens);
@@ -81,7 +81,7 @@ describe('AuthController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         message: 'Login successful',
-        data: mockTokens
+        data: mockTokens,
       });
     });
   });
@@ -94,14 +94,14 @@ describe('AuthController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Refresh token is required'
+        message: 'Refresh token is required',
       });
     });
 
     it('should return 401 if refresh service throws an error', async () => {
       // Mock request with refresh token
       mockReq.body = {
-        refreshToken: 'invalid_refresh_token'
+        refreshToken: 'invalid_refresh_token',
       };
 
       // Mock refresh service to throw an error
@@ -112,21 +112,21 @@ describe('AuthController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(401);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Invalid refresh token'
+        message: 'Invalid refresh token',
       });
     });
 
     it('should return 200 and new tokens if refresh is successful', async () => {
       // Mock request with refresh token
       mockReq.body = {
-        refreshToken: 'valid_refresh_token'
+        refreshToken: 'valid_refresh_token',
       };
 
       // Mock successful refresh service response
       const mockTokens = {
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
-        expiresIn: 3600
+        expiresIn: 3600,
       };
       
       jest.spyOn(AuthService.prototype, 'refreshToken').mockResolvedValue(mockTokens);
@@ -137,7 +137,7 @@ describe('AuthController', () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
         message: 'Token refreshed successfully',
-        data: mockTokens
+        data: mockTokens,
       });
     });
   });
@@ -149,7 +149,7 @@ describe('AuthController', () => {
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: true,
-        message: 'Token is valid'
+        message: 'Token is valid',
       });
     });
   });

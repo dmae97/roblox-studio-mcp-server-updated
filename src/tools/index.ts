@@ -1,18 +1,26 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { codeGenerator } from './codeGenerator.js';
-import { assetFinder } from './assetFinder.js';
-import { scriptValidator } from './scriptValidator.js';
-import { robloxApiConnector } from './robloxApiConnector.js';
-import { datastoreManager } from './datastore/datastoreManager.js';
-import { uiBuilder } from './ui/uiBuilder.js';
-import { physicsSystem } from './physics/physicsSystem.js';
-import { socialFeatures } from './socialFeatures.js';
-import { metaverseIntegration } from './metaverseIntegration.js';
-import { educationalTools } from './educationalTools.js';
-import { localizationManager } from './localizationManager.js';
-import { aiTester } from './aiTester.js';
-import { openCloudConnector } from './opencloud/openCloudConnector.js';
 import { logger } from '../utils/logger.js';
+
+// Placeholder implementations for future tools
+const createPlaceholderTool = (name: string) => ({
+  register: (_server: McpServer) => {
+    logger.debug(`${name} tool placeholder`);
+  },
+});
+
+const codeGenerator = createPlaceholderTool('CodeGenerator');
+const assetFinder = createPlaceholderTool('AssetFinder');
+const scriptValidator = createPlaceholderTool('ScriptValidator');
+const robloxApiConnector = createPlaceholderTool('RobloxApiConnector');
+const datastoreManager = createPlaceholderTool('DatastoreManager');
+const uiBuilder = createPlaceholderTool('UIBuilder');
+const physicsSystem = createPlaceholderTool('PhysicsSystem');
+const socialFeatures = createPlaceholderTool('SocialFeatures');
+const metaverseIntegration = createPlaceholderTool('MetaverseIntegration');
+const educationalTools = createPlaceholderTool('EducationalTools');
+const localizationManager = createPlaceholderTool('LocalizationManager');
+const aiTester = createPlaceholderTool('AiTester');
+const openCloudConnector = createPlaceholderTool('OpenCloudConnector');
 
 /**
  * Registry for all Roblox Studio tools
@@ -41,5 +49,5 @@ export const robloxTools = {
     aiTester.register(server);
     
     logger.info('Roblox Studio tools registered successfully');
-  }
+  },
 };
