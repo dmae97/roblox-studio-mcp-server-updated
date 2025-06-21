@@ -1,21 +1,11 @@
 {
-  "name": "roblox-studio-mcp-server",
-  "displayName": "Roblox Studio MCP Server",
-  "description": "MCP server for Roblox Studio development",
-  "version": "2.0.0",
-  "author": "dmae97",
-  "license": "MIT",
-  "keywords": ["roblox", "mcp", "server"],
-  "mcpVersion": "2024-11-05",
-  "runtime": "node",
+  "name": "roblox-mcp",
+  "version": "1.0.0",
+  "description": "Simple MCP server",
   "mcpServers": [
     {
       "command": "node",
-      "args": ["src/index.js"],
-      "env": {
-        "NODE_ENV": "production",
-        "PORT": "3000"
-      }
+      "args": ["index.js"]
     }
   ]
 } 
