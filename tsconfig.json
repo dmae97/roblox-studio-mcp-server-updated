@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["jest", "node"]
+  },
+  "include": ["src/**/*", "global.d.ts", "swagger.ts"],
+  "exclude": ["node_modules", "**/*.test.ts", "**/*.e2e.ts", "src/tests", "jest.config.js", "jest.integration.config.js", "jest.setup.js"]
+}

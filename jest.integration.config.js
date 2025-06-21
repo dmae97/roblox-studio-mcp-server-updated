@@ -1,0 +1,1 @@
+import baseConfig from './jest.config.js';\n\nexport default {\n  ...baseConfig,\n  testMatch: ['**/*.e2e.ts'],\n  setupFilesAfterEnv: ['./jest.setup.js'],\n  testTimeout: 30000, // Longer timeout for e2e tests\n  maxWorkers: 1, // Run tests sequentially\n};\n
